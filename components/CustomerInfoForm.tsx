@@ -82,13 +82,10 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
       newErrors.privacy = '개인정보 이용 동의가 필요합니다.'
     }
 
-    // 마케팅 동의 검사
-    if (!formData.marketingAgreed) {
-      newErrors.marketing = '마케팅 동의가 필요합니다.'
-    }
+    // 마케팅 동의는 선택사항이므로 유효성 검사에서 제외
 
     setErrors(newErrors)
-    return !newErrors.name && !newErrors.phone && !newErrors.email && !newErrors.privacy && !newErrors.marketing
+    return !newErrors.name && !newErrors.phone && !newErrors.email && !newErrors.privacy
   }
 
   // 폼 제출 처리
@@ -121,6 +118,7 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
         
         // 폼 초기화 및 닫기
         setFormData({ name: '', phone: '', email: '', privacyAgreed: false, marketingAgreed: false })
+        setErrors({ name: '', phone: '', email: '', privacy: '', marketing: '' })
         setIsSuccess(false)
         setIsSubmitting(false)
         onClose()
@@ -262,16 +260,16 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
                 </div>
 
                 {/* 개인정보 이용동의 */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-start space-x-2">
                   <input
                     type="checkbox"
                     id="privacyAgreed"
                     checked={formData.privacyAgreed}
                     onChange={(e) => handleInputChange('privacyAgreed', e.target.checked)}
-                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded mt-1"
                   />
                   <Label htmlFor="privacyAgreed" className="text-sm text-gray-700">
-                    개인정보 이용 동의 (필수)
+                    <span className="font-medium text-red-600">(필수)</span> 위 개인정보 수집 및 이용에 동의합니다.
                   </Label>
                 </div>
                 {errors.privacy && (
@@ -282,16 +280,19 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
                 )}
 
                 {/* 마케팅 동의 */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-start space-x-2">
                   <input
                     type="checkbox"
                     id="marketingAgreed"
                     checked={formData.marketingAgreed}
                     onChange={(e) => handleInputChange('marketingAgreed', e.target.checked)}
-                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded mt-1"
                   />
                   <Label htmlFor="marketingAgreed" className="text-sm text-gray-700">
-                    마케팅 정보 수신 동의 (필수)
+                    <span className="font-medium text-blue-600">(선택)</span> 마케팅 정보 수신에 동의합니다.<br />
+                    <span className="text-xs text-gray-500">
+                      (할인·이벤트·건강식단/보험/지원금 정보 등을 문자, 카카오톡 등으로 안내받습니다)
+                    </span>
                   </Label>
                 </div>
                 {errors.marketing && (
@@ -301,20 +302,53 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
                   </div>
                 )}
 
-                {/* 안내 메시지 */}
-                <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                  <div className="flex items-start">
-                    <CheckCircleIcon className="w-5 h-5 text-orange-500 mr-2 flex-shrink-0 mt-0.5" />
-                    <div className="text-sm text-orange-700">
-                      <p className="font-medium mb-2">동의 사항</p>
-                      <div className="text-xs space-y-1">
-                        <p>• 개인정보는 맞춤형 식단 제공 목적으로만 사용됩니다.</p>
-                        <p>• 마케팅 정보 수신에 동의하시면 할인 혜택과 이벤트 정보를 받으실 수 있습니다.</p>
-                        <p>• 모든 정보는 안전하게 보관되며 외부에 공유되지 않습니다.</p>
-                        <p className="font-medium text-orange-800 mt-2">
-                          📋 개인정보 관리책임자: 김신균 (홈페이지 관리자)
-                        </p>
+                {/* 개인정보 수집 및 이용 동의서 */}
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 max-h-64 overflow-y-auto">
+                  <div className="text-sm text-gray-700">
+                    <h4 className="font-bold text-gray-800 mb-3 text-center">
+                      📌 개인정보 수집 및 이용에 대한 동의 안내
+                    </h4>
+                    
+                    <p className="text-xs text-red-600 mb-3 text-center">
+                      ※ 아래 항목은 서비스 제공을 위한 필수 동의사항입니다.
+                    </p>
+
+                    <div className="space-y-3 text-xs">
+                      <div>
+                        <p className="font-semibold text-gray-800 mb-1">■ 수집 항목</p>
+                        <p>- 이름, 연락처(휴대전화번호), 이메일, 상담요청 내용, 관심 서비스 항목(도시락/보험/정책자금/기업인증 등)</p>
                       </div>
+
+                      <div>
+                        <p className="font-semibold text-gray-800 mb-1">■ 수집 목적</p>
+                        <p>- 맞춤형 도시락 식단 추천 및 관련 이벤트 안내</p>
+                        <p>- 보험 보장분석 및 맞춤형 컨설팅 제공</p>
+                        <p>- 기업 인증, 정책자금, 정부 지원금 관련 안내 및 상담</p>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold text-gray-800 mb-1">■ 보유 및 이용 기간</p>
+                        <p>- 수집일로부터 3년간 보관 후 안전하게 파기됩니다.</p>
+                        <p>- 마케팅 수신 동의는 1년 이내 보관되며, 언제든 철회 가능합니다.</p>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold text-gray-800 mb-1">■ 제3자 제공</p>
+                        <p>- 없음</p>
+                        <p className="text-gray-600">※ 단, 고객 요청 시 해당 분야 전문 컨설턴트에게 제한적으로 전달될 수 있습니다.</p>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold text-gray-800 mb-1">■ 동의 거부 권리 및 불이익</p>
+                        <p>- 귀하는 개인정보 수집 및 마케팅 수신에 대한 동의를 거부할 수 있습니다.</p>
+                        <p>- 단, 필수 항목에 대한 동의를 거부하실 경우 서비스 이용이 제한될 수 있습니다.</p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-gray-300 mt-4 pt-3 text-center">
+                      <p className="text-xs text-gray-600">
+                        📞 개인정보 보호책임자: <span className="font-medium text-gray-800">김신균 (홈페이지 관리자)</span>
+                      </p>
                     </div>
                   </div>
                 </div>
