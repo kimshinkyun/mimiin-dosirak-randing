@@ -30,7 +30,8 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
     phone: '',
     email: '',
     privacyAgreed: false,
-    marketingAgreed: false
+    marketingAgreed: false,
+    allAgreed: false
   })
   const [errors, setErrors] = useState({
     name: '',
@@ -117,11 +118,12 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
         window.open(DIET_PLAN_URL, '_blank', 'noopener noreferrer')
         
         // 폼 초기화 및 닫기
-        setFormData({ name: '', phone: '', email: '', privacyAgreed: false, marketingAgreed: false })
+        setFormData({ name: '', phone: '', email: '', privacyAgreed: false, marketingAgreed: false, allAgreed: false })
         setErrors({ name: '', phone: '', email: '', privacy: '', marketing: '' })
         setIsSuccess(false)
         setIsSubmitting(false)
         onClose()
+
       }, 2000)
 
     } catch (error) {
@@ -132,7 +134,16 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
 
   // 입력 필드 변경 처리
   const handleInputChange = (field: keyof typeof formData, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData(prev => {
+      const updatedData = { ...prev, [field]: value }
+      
+      // 개별 동의 항목이 변경될 때 전체 동의 상태 업데이트
+      if (field === 'privacyAgreed' || field === 'marketingAgreed') {
+        updatedData.allAgreed = updatedData.privacyAgreed && updatedData.marketingAgreed
+      }
+      
+      return updatedData
+    })
     
     // 에러 초기화 처리
     if (field === 'privacyAgreed' && errors.privacy) {
@@ -259,49 +270,6 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
                   )}
                 </div>
 
-                {/* 개인정보 이용동의 */}
-                <div className="flex items-start space-x-2">
-                  <input
-                    type="checkbox"
-                    id="privacyAgreed"
-                    checked={formData.privacyAgreed}
-                    onChange={(e) => handleInputChange('privacyAgreed', e.target.checked)}
-                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded mt-1"
-                  />
-                  <Label htmlFor="privacyAgreed" className="text-sm text-gray-700">
-                    <span className="font-medium text-red-600">(필수)</span> 위 개인정보 수집 및 이용에 동의합니다.
-                  </Label>
-                </div>
-                {errors.privacy && (
-                  <div className="flex items-center mt-1 text-red-500 text-xs">
-                    <AlertCircleIcon className="w-3 h-3 mr-1" />
-                    {errors.privacy}
-                  </div>
-                )}
-
-                {/* 마케팅 동의 */}
-                <div className="flex items-start space-x-2">
-                  <input
-                    type="checkbox"
-                    id="marketingAgreed"
-                    checked={formData.marketingAgreed}
-                    onChange={(e) => handleInputChange('marketingAgreed', e.target.checked)}
-                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded mt-1"
-                  />
-                  <Label htmlFor="marketingAgreed" className="text-sm text-gray-700">
-                    <span className="font-medium text-blue-600">(선택)</span> 마케팅 정보 수신에 동의합니다.<br />
-                    <span className="text-xs text-gray-500">
-                      (할인·이벤트·건강식단/보험/지원금 정보 등을 문자, 카카오톡 등으로 안내받습니다)
-                    </span>
-                  </Label>
-                </div>
-                {errors.marketing && (
-                  <div className="flex items-center mt-1 text-red-500 text-xs">
-                    <AlertCircleIcon className="w-3 h-3 mr-1" />
-                    {errors.marketing}
-                  </div>
-                )}
-
                 {/* 개인정보 수집 및 이용 동의서 */}
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 max-h-64 overflow-y-auto">
                   <div className="text-sm text-gray-700">
@@ -351,6 +319,82 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
                       </p>
                     </div>
                   </div>
+                </div>
+
+                {/* 전체 동의 */}
+                <div className="bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
+                  <div className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      id="allAgreed"
+                      checked={formData.allAgreed}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setFormData(prev => ({
+                          ...prev,
+                          privacyAgreed: checked,
+                          marketingAgreed: checked,
+                          allAgreed: checked
+                        }));
+                        setErrors(prev => ({ ...prev, privacy: '', marketing: '' }));
+                      }}
+                      className="h-5 w-5 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+                    />
+                    <Label htmlFor="allAgreed" className="text-sm font-bold text-orange-700 cursor-pointer">
+                      ✅ 위 모든 개인정보 수집 및 이용에 동의합니다
+                    </Label>
+                  </div>
+                  <p className="text-xs text-orange-600 mt-2 ml-8">
+                    (개인정보 수집·이용 + 마케팅 정보 수신 모두 동의)
+                  </p>
+                </div>
+
+                {/* 개별 동의 항목들 */}
+                <div className="space-y-3 border-t pt-4">
+                  <p className="text-sm font-medium text-gray-700 mb-3">또는 개별 선택:</p>
+
+                  {/* 개인정보 이용동의 */}
+                  <div className="flex items-start space-x-2">
+                    <input
+                      type="checkbox"
+                      id="privacyAgreed"
+                      checked={formData.privacyAgreed}
+                      onChange={(e) => handleInputChange('privacyAgreed', e.target.checked)}
+                      className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded mt-1"
+                    />
+                    <Label htmlFor="privacyAgreed" className="text-sm text-gray-700">
+                      <span className="font-medium text-red-600">(필수)</span> 개인정보 수집 및 이용에 동의합니다
+                    </Label>
+                  </div>
+                  {errors.privacy && (
+                    <div className="flex items-center mt-1 text-red-500 text-xs ml-6">
+                      <AlertCircleIcon className="w-3 h-3 mr-1" />
+                      {errors.privacy}
+                    </div>
+                  )}
+
+                  {/* 마케팅 동의 */}
+                  <div className="flex items-start space-x-2">
+                    <input
+                      type="checkbox"
+                      id="marketingAgreed"
+                      checked={formData.marketingAgreed}
+                      onChange={(e) => handleInputChange('marketingAgreed', e.target.checked)}
+                      className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded mt-1"
+                    />
+                    <Label htmlFor="marketingAgreed" className="text-sm text-gray-700">
+                      <span className="font-medium text-blue-600">(선택)</span> 마케팅 정보 수신에 동의합니다<br />
+                      <span className="text-xs text-gray-500">
+                        (할인·이벤트·건강식단/보험/지원금 정보 등을 문자, 카카오톡 등으로 안내받습니다)
+                      </span>
+                    </Label>
+                  </div>
+                  {errors.marketing && (
+                    <div className="flex items-center mt-1 text-red-500 text-xs ml-6">
+                      <AlertCircleIcon className="w-3 h-3 mr-1" />
+                      {errors.marketing}
+                    </div>
+                  )}
                 </div>
 
                 {/* 버튼 */}
