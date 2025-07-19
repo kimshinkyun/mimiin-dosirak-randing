@@ -5,7 +5,14 @@ const nextConfig = {
     unoptimized: true
   },
   trailingSlash: true,
-  distDir: 'out'
+  distDir: 'out',
+  experimental: {
+    forceSwcTransforms: false,
+  },
+  webpack: (config) => {
+    config.resolve.symlinks = false
+    return config
+  }
 }
 
 module.exports = nextConfig 
