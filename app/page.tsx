@@ -684,6 +684,16 @@ export default function LunchboxLandingPage() {
 
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
             <p>&copy; 2024 미미인 도시락. All rights reserved.</p>
+            {/* 관리자 링크 (숨겨진) */}
+            <div className="mt-2">
+              <a 
+                href="/admin" 
+                className="text-xs text-gray-600 hover:text-orange-500 transition-colors"
+                style={{ opacity: 0.3 }}
+              >
+                관리자
+              </a>
+            </div>
           </div>
         </div>
       </footer>

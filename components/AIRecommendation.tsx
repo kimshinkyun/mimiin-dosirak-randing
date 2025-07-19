@@ -6,6 +6,7 @@ import { usePreferenceStore, RecommendationResult } from '@/lib/stores/preferenc
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import CustomerInfoForm from '@/components/CustomerInfoForm'
 import { 
   BrainIcon, 
   StarIcon, 
@@ -15,7 +16,8 @@ import {
   ChefHatIcon,
   ClockIcon,
   UsersIcon,
-  RefreshCwIcon
+  RefreshCwIcon,
+  DownloadIcon
 } from 'lucide-react'
 
 // 인스타그램 링크 상수
@@ -37,6 +39,7 @@ export default function AIRecommendation() {
   } = usePreferenceStore()
 
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [showCustomerForm, setShowCustomerForm] = useState(false)
 
   // 컴포넌트 마운트 시 추천 생성
   useEffect(() => {
@@ -152,6 +155,12 @@ export default function AIRecommendation() {
           isOpen={showOnboarding} 
           onClose={() => setShowOnboarding(false)} 
         />
+
+        {/* 고객 정보 입력 폼 */}
+        <CustomerInfoForm 
+          isOpen={showCustomerForm}
+          onClose={() => setShowCustomerForm(false)}
+        />
       </section>
     )
   }
@@ -205,6 +214,18 @@ export default function AIRecommendation() {
               취향 다시 설정하기
             </Button>
           </div>
+
+          {/* 맞춤형 도시락 식단보기 버튼 */}
+          <div className="flex justify-center mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowCustomerForm(true)}
+              className="border-orange-200 text-orange-600 hover:bg-orange-50"
+            >
+              <DownloadIcon className="w-4 h-4 mr-2" />
+              🍱 맞춤형 도시락 식단보기
+            </Button>
+          </div>
         </motion.div>
 
         {/* 로딩 상태 */}
@@ -250,6 +271,7 @@ export default function AIRecommendation() {
                   recommendation={recommendation}
                   index={index}
                   onOrder={() => handleOrderMenu(recommendation.menu.id)}
+                  onViewDietPlan={() => setShowCustomerForm(true)}
                 />
               ))}
             </motion.div>
@@ -276,6 +298,12 @@ export default function AIRecommendation() {
           </motion.div>
         )}
       </div>
+
+      {/* 고객 정보 입력 폼 */}
+      <CustomerInfoForm 
+        isOpen={showCustomerForm}
+        onClose={() => setShowCustomerForm(false)}
+      />
     </section>
   )
 }
@@ -284,11 +312,13 @@ export default function AIRecommendation() {
 function RecommendationCard({ 
   recommendation, 
   index, 
-  onOrder 
+  onOrder,
+  onViewDietPlan
 }: { 
   recommendation: RecommendationResult
   index: number
   onOrder: () => void
+  onViewDietPlan: () => void
 }) {
   const { menu, confidence_score, reason, category } = recommendation
   const { preferences } = usePreferenceStore()
@@ -452,6 +482,18 @@ function RecommendationCard({
                 className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-8 py-3 rounded-full transform hover:scale-105 transition-all duration-200 w-full"
               >
                 📱 주문하기
+              </Button>
+            </div>
+
+            {/* 맞춤형 도시락 식단보기 버튼 */}
+            <div className="flex justify-center mt-3">
+              <Button
+                variant="outline"
+                onClick={onViewDietPlan}
+                className="border-orange-200 text-orange-600 hover:bg-orange-50 w-full"
+              >
+                <DownloadIcon className="w-4 h-4 mr-2" />
+                📥 맞춤형 식단 다운로드
               </Button>
             </div>
           </div>
