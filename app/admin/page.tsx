@@ -380,6 +380,16 @@ export default function AdminPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* 관리자 정보 푸터 */}
+      <div className="bg-white border-t mt-8">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-center text-sm text-gray-600">
+            <LockIcon className="w-4 h-4 mr-2 text-orange-500" />
+            <span>개인정보 관리책임자: <span className="font-medium text-gray-800">김신균 (홈페이지 관리자)</span></span>
+          </div>
+        </div>
+      </div>
     </div>
   )
 } 

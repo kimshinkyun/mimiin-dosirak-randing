@@ -311,6 +311,9 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
                         <p>• 개인정보는 맞춤형 식단 제공 목적으로만 사용됩니다.</p>
                         <p>• 마케팅 정보 수신에 동의하시면 할인 혜택과 이벤트 정보를 받으실 수 있습니다.</p>
                         <p>• 모든 정보는 안전하게 보관되며 외부에 공유되지 않습니다.</p>
+                        <p className="font-medium text-orange-800 mt-2">
+                          📋 개인정보 관리책임자: 김신균 (홈페이지 관리자)
+                        </p>
                       </div>
                     </div>
                   </div>
