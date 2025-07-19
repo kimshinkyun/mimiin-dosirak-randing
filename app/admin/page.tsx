@@ -21,7 +21,7 @@ import {
 } from 'lucide-react'
 
 // 관리자 패스워드 (실제 환경에서는 환경변수나 더 안전한 방법 사용)
-const ADMIN_PASSWORD = "mimin2024!"
+const ADMIN_PASSWORD = "gotls2ek3!@"
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
