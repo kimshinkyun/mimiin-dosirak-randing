@@ -28,12 +28,16 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    email: ''
+    email: '',
+    privacyAgreed: false,
+    marketingAgreed: false
   })
   const [errors, setErrors] = useState({
     name: '',
     phone: '',
-    email: ''
+    email: '',
+    privacy: '',
+    marketing: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
@@ -45,7 +49,9 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
     const newErrors = {
       name: '',
       phone: '',
-      email: ''
+      email: '',
+      privacy: '',
+      marketing: ''
     }
 
     // 이름 검사
@@ -71,8 +77,18 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
       newErrors.email = '올바른 이메일 형식으로 입력해주세요.'
     }
 
+    // 개인정보 이용동의 검사
+    if (!formData.privacyAgreed) {
+      newErrors.privacy = '개인정보 이용 동의가 필요합니다.'
+    }
+
+    // 마케팅 동의 검사
+    if (!formData.marketingAgreed) {
+      newErrors.marketing = '마케팅 동의가 필요합니다.'
+    }
+
     setErrors(newErrors)
-    return !newErrors.name && !newErrors.phone && !newErrors.email
+    return !newErrors.name && !newErrors.phone && !newErrors.email && !newErrors.privacy && !newErrors.marketing
   }
 
   // 폼 제출 처리
@@ -90,7 +106,9 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
       const customerId = addCustomer({
         name: formData.name.trim(),
         phone: formData.phone.trim(),
-        email: formData.email.trim()
+        email: formData.email.trim(),
+        privacyAgreed: formData.privacyAgreed,
+        marketingAgreed: formData.marketingAgreed
       })
 
       // 성공 상태로 변경
@@ -102,7 +120,7 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
         window.open(DIET_PLAN_URL, '_blank', 'noopener noreferrer')
         
         // 폼 초기화 및 닫기
-        setFormData({ name: '', phone: '', email: '' })
+        setFormData({ name: '', phone: '', email: '', privacyAgreed: false, marketingAgreed: false })
         setIsSuccess(false)
         setIsSubmitting(false)
         onClose()
@@ -115,11 +133,15 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
   }
 
   // 입력 필드 변경 처리
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
+  const handleInputChange = (field: keyof typeof formData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     
-    // 에러 초기화
-    if (errors[field]) {
+    // 에러 초기화 처리
+    if (field === 'privacyAgreed' && errors.privacy) {
+      setErrors(prev => ({ ...prev, privacy: '' }))
+    } else if (field === 'marketingAgreed' && errors.marketing) {
+      setErrors(prev => ({ ...prev, marketing: '' }))
+    } else if (field in errors) {
       setErrors(prev => ({ ...prev, [field]: '' }))
     }
   }
@@ -239,16 +261,57 @@ export default function CustomerInfoForm({ isOpen, onClose }: CustomerInfoFormPr
                   )}
                 </div>
 
+                {/* 개인정보 이용동의 */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="privacyAgreed"
+                    checked={formData.privacyAgreed}
+                    onChange={(e) => handleInputChange('privacyAgreed', e.target.checked)}
+                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+                  />
+                  <Label htmlFor="privacyAgreed" className="text-sm text-gray-700">
+                    개인정보 이용 동의 (필수)
+                  </Label>
+                </div>
+                {errors.privacy && (
+                  <div className="flex items-center mt-1 text-red-500 text-xs">
+                    <AlertCircleIcon className="w-3 h-3 mr-1" />
+                    {errors.privacy}
+                  </div>
+                )}
+
+                {/* 마케팅 동의 */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="marketingAgreed"
+                    checked={formData.marketingAgreed}
+                    onChange={(e) => handleInputChange('marketingAgreed', e.target.checked)}
+                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+                  />
+                  <Label htmlFor="marketingAgreed" className="text-sm text-gray-700">
+                    마케팅 정보 수신 동의 (필수)
+                  </Label>
+                </div>
+                {errors.marketing && (
+                  <div className="flex items-center mt-1 text-red-500 text-xs">
+                    <AlertCircleIcon className="w-3 h-3 mr-1" />
+                    {errors.marketing}
+                  </div>
+                )}
+
                 {/* 안내 메시지 */}
                 <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
                   <div className="flex items-start">
                     <CheckCircleIcon className="w-5 h-5 text-orange-500 mr-2 flex-shrink-0 mt-0.5" />
                     <div className="text-sm text-orange-700">
-                      <p className="font-medium mb-1">개인정보 이용 동의</p>
-                      <p className="text-xs">
-                        입력하신 정보는 맞춤형 식단 제공 목적으로만 사용되며,<br />
-                        외부에 공유되지 않습니다.
-                      </p>
+                      <p className="font-medium mb-2">동의 사항</p>
+                      <div className="text-xs space-y-1">
+                        <p>• 개인정보는 맞춤형 식단 제공 목적으로만 사용됩니다.</p>
+                        <p>• 마케팅 정보 수신에 동의하시면 할인 혜택과 이벤트 정보를 받으실 수 있습니다.</p>
+                        <p>• 모든 정보는 안전하게 보관되며 외부에 공유되지 않습니다.</p>
+                      </div>
                     </div>
                   </div>
                 </div>

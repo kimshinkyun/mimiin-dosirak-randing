@@ -89,7 +89,7 @@ export default function AdminPage() {
 
   // CSV 다운로드
   const downloadCSV = () => {
-    const headers = ['이름', '전화번호', '이메일', '등록일시', '식단표 접근']
+    const headers = ['이름', '전화번호', '이메일', '등록일시', '식단표 접근', '개인정보 동의', '마케팅 동의']
     const csvContent = [
       headers.join(','),
       ...customers.map(customer => [
@@ -97,7 +97,9 @@ export default function AdminPage() {
         customer.phone,
         customer.email,
         formatDate(customer.createdAt),
-        customer.accessedDietPlan ? '접근함' : '미접근'
+        customer.accessedDietPlan ? '접근함' : '미접근',
+        customer.agreements?.privacy ? '동의' : '미동의',
+        customer.agreements?.marketing ? '동의' : '미동의'
       ].join(','))
     ].join('\n')
 
@@ -191,7 +193,7 @@ export default function AdminPage() {
       {/* 메인 콘텐츠 */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* 통계 카드 */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="grid md:grid-cols-5 gap-4 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -214,6 +216,34 @@ export default function AdminPage() {
                   </p>
                 </div>
                 <CheckCircleIcon className="w-8 h-8 text-green-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">개인정보 동의</p>
+                  <p className="text-3xl font-bold text-blue-600">
+                    {customers.filter(c => c.agreements?.privacy).length}
+                  </p>
+                </div>
+                <LockIcon className="w-8 h-8 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">마케팅 동의</p>
+                  <p className="text-3xl font-bold text-purple-600">
+                    {customers.filter(c => c.agreements?.marketing).length}
+                  </p>
+                </div>
+                <MailIcon className="w-8 h-8 text-purple-500" />
               </div>
             </CardContent>
           </Card>
@@ -259,6 +289,8 @@ export default function AdminPage() {
                       <th className="text-left p-4 font-medium text-gray-700">이메일</th>
                       <th className="text-left p-4 font-medium text-gray-700">등록일시</th>
                       <th className="text-left p-4 font-medium text-gray-700">식단표 접근</th>
+                      <th className="text-left p-4 font-medium text-gray-700">개인정보 동의</th>
+                      <th className="text-left p-4 font-medium text-gray-700">마케팅 동의</th>
                       <th className="text-left p-4 font-medium text-gray-700">관리</th>
                     </tr>
                   </thead>
@@ -300,6 +332,32 @@ export default function AdminPage() {
                             <Badge variant="secondary" className="bg-gray-100 text-gray-600">
                               <XCircleIcon className="w-3 h-3 mr-1" />
                               미접근
+                            </Badge>
+                          )}
+                        </td>
+                        <td className="p-4">
+                          {customer.agreements?.privacy ? (
+                            <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                              <CheckCircleIcon className="w-3 h-3 mr-1" />
+                              동의
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary" className="bg-gray-100 text-gray-600">
+                              <XCircleIcon className="w-3 h-3 mr-1" />
+                              미동의
+                            </Badge>
+                          )}
+                        </td>
+                        <td className="p-4">
+                          {customer.agreements?.marketing ? (
+                            <Badge className="bg-purple-100 text-purple-800 border-purple-200">
+                              <CheckCircleIcon className="w-3 h-3 mr-1" />
+                              동의
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary" className="bg-gray-100 text-gray-600">
+                              <XCircleIcon className="w-3 h-3 mr-1" />
+                              미동의
                             </Badge>
                           )}
                         </td>

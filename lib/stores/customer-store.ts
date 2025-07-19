@@ -9,6 +9,14 @@ export interface CustomerInfo {
   email: string
   createdAt: string
   accessedDietPlan: boolean // 식단표 접근 여부
+  
+  // 동의 정보
+  agreements: {
+    privacy: boolean      // 개인정보 이용 동의 (필수)
+    marketing: boolean    // 광고 마케팅 동의 (선택)
+    privacyAgreedAt: string | null    // 개인정보 동의 시각
+    marketingAgreedAt: string | null  // 마케팅 동의 시각
+  }
 }
 
 // 스토어 상태 타입
@@ -17,7 +25,10 @@ interface CustomerStore {
   customers: CustomerInfo[]
   
   // 액션
-  addCustomer: (customerData: Omit<CustomerInfo, 'id' | 'createdAt' | 'accessedDietPlan'>) => string
+  addCustomer: (customerData: Omit<CustomerInfo, 'id' | 'createdAt' | 'accessedDietPlan' | 'agreements'> & {
+    privacyAgreed: boolean
+    marketingAgreed: boolean
+  }) => string
   getCustomers: () => CustomerInfo[]
   markDietPlanAccessed: (customerId: string) => void
   deleteCustomer: (customerId: string) => void
@@ -35,9 +46,17 @@ export const useCustomerStore = create<CustomerStore>()(
         
         const newCustomer: CustomerInfo = {
           id: customerId,
-          ...customerData,
+          name: customerData.name,
+          phone: customerData.phone,
+          email: customerData.email,
           createdAt: new Date().toISOString(),
-          accessedDietPlan: false
+          accessedDietPlan: false,
+          agreements: {
+            privacy: customerData.privacyAgreed,
+            marketing: customerData.marketingAgreed,
+            privacyAgreedAt: customerData.privacyAgreed ? new Date().toISOString() : null,
+            marketingAgreedAt: customerData.marketingAgreed ? new Date().toISOString() : null,
+          }
         }
 
         set((state) => ({
